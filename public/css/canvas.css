@@ -1,0 +1,29 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #111;
+  }
+  canvas {
+    display: block;
+  }
+          
+     
+          .content {
+              position: relative;
+              z-index: 10; /* Contentni canvasdan yuqoriga joylashtiramiz */
+              color: white;
+              font-family: Arial, sans-serif;
+              font-size: 24px;
+              text-align: center;
+              padding: 50px;
+          }
+  
+          /* Qo'shimcha styling, agar kontentni yanada chiroyli qilishni istasangiz */
+          .content h1 {
+              font-size: 50px;
+          }
+  
+          .content p {
+              font-size: 20px;
+          }

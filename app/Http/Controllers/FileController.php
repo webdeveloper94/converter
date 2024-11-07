@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Element\TextRun;
 use App\Exports\ConvertedFileExport;
+use PhpOffice\PhpWord\PhpWord;
 
 class FileController extends Controller
 {
@@ -54,31 +55,47 @@ class FileController extends Controller
     }
 
     private function processWord($file, $conversionType)
-    {
-        $phpWord = IOFactory::load($file);
-        $text = '';
+{
+    // Word faylini o'qish
+    $phpWord = IOFactory::load($file);
+    $text = '';
 
-        foreach ($phpWord->getSections() as $section) {
-            foreach ($section->getElements() as $element) {
-                if ($element instanceof TextRun) {
-                    $text .= $element->getText();
-                }
+    // Har bir bo'limni o'qish va matnni yig'ish
+    foreach ($phpWord->getSections() as $section) {
+        foreach ($section->getElements() as $element) {
+            if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+                $text .= $element->getText();
             }
         }
+    }
 
-        $convertedText = $this->convertText($text, $conversionType);
+    // Matnni kerakli formata o'zgartirish
+    $convertedText = $this->convertText($text, $conversionType);
 
-        $convertedFileName = 'converted_file_' . time() . '.txt';
-        $convertedFilePath = 'public/converted_files/' . $convertedFileName;
+    // UTF-8 kodlashga o'tkazish (agar kerak bo'lsa)
+    $convertedText = utf8_encode($convertedText); // Bu yerda ishlatiladi
 
-        file_put_contents(storage_path('app/' . $convertedFilePath), $convertedText);
+    // Yangi Word faylini yaratish
+    $phpWord = new PhpWord(); // Yangi PhpWord ob'ektini yaratish
+    $section = $phpWord->addSection();
 
-        $downloadLink = url('storage/converted_files/' . $convertedFileName);
+    // O'zgartirilgan matnni yangi faylga yozish
+    $section->addText($convertedText);
 
-        return redirect()->back()->with('success', 'Word fayli muvaffaqiyatli konvertatsiya qilindi.')
+    // Konvertatsiya qilingan Word faylini saqlash
+    $convertedFileName = 'converted_file_' . time() . '.docx';
+    $convertedFilePath = 'public/converted_files/' . $convertedFileName;
+
+    // Faylni to'g'ri saqlash (Word2007 formatida)
+    $phpWord->save(storage_path('app/' . $convertedFilePath), 'Word2007'); // DOCX formatida saqlash
+
+    // Yuklab olish linkini yaratish
+    $downloadLink = url('storage/converted_files/' . $convertedFileName);
+
+    return redirect()->back()->with('success', 'Word fayli muvaffaqiyatli konvertatsiya qilindi.')
                              ->with('download_link', $downloadLink)
                              ->with('auto_download', true);
-    }
+}
 
     private function convertText($text, $conversionType)
     {

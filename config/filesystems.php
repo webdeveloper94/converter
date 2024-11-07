@@ -32,18 +32,18 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('app/private'),
+            'root' => storage_path('app/public'),
             'serve' => true,
             'throw' => false,
         ],
 
         'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
-            'visibility' => 'public',
-            'throw' => false,
-        ],
+        'driver' => 'local',
+        'root' => storage_path('app/public'),  // Bu to'g'ri
+        'url' => env('APP_URL') . '/storage',  // Bu URL foydalanuvchilarga ochiq bo'lishi kerak
+        'visibility' => 'public',  // Fayllar umumiy bo'ladi
+        'throw' => false,
+    ],
 
         's3' => [
             'driver' => 's3',
